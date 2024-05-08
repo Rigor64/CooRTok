@@ -1,6 +1,7 @@
 #'  tiktok_account_info function
 #'
 #' This function add information about the accounts that are detected for their coordinated behaviours
+#' @name tiktok_account_info
 #' @param dataframe the result of account_stats function from CoorTweet library
 #' @param summary_entity  the result of create_entity function
 #' @export

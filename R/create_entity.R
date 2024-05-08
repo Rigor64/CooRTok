@@ -2,6 +2,7 @@
 #'
 #' This function given, refer to the input, a dataset with specific data related to the graph of the coordinated behaviours,
 #' with an indication about the clusters or components on each network
+#' @name create_entity
 #' @param graph the coordinated behaviours graph
 #' @param database the database
 #' @param get_cluster boolean parameter for chosing if the cluster would be detected

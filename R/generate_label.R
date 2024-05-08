@@ -1,4 +1,18 @@
-
+#'  Function generate_label()
+#'
+#' This function allows you to make a request to ChatGPT which, processing the data taken as input,
+#' returns a summary label of the descriptions of the videos that are part of each cluster or component.
+#'
+#' @name generate_label
+#' @param dataframe dataframe containing information about tiktok accounts
+#' @param model variable containing the version of ChatGPT to be used
+#' @param get_cluste boolean variable that specifies whether to also analyze clusters
+#' @export
+#' @import dplyr
+#' @import utils
+#' @import openai
+#' @examples
+#' generate_label(dataframe = dataframe, model = "gpt-3.5-turbo", get_cluster = TRUE)
 
 
 generate_label <- function(dataframe, model = "gpt-3.5-turbo", get_cluster = TRUE) {
