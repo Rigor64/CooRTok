@@ -1,3 +1,17 @@
+#'  tiktok_account_info function
+#'
+#' This function add information about the accounts that are detected for their coordinated behaviours
+#' @param dataframe the result of account_stats function from CoorTweet library
+#' @param summary_entity  the result of create_entity function
+#' @export
+#' @import utils
+#' @import traktok
+#' @import jsonlite
+#' @import httr
+#' @import dplyr
+#' @examples
+#' tiktok_account_info(summary_accounts, summary_entity)
+
 # Load required libraries
 library(httr)
 library(jsonlite)
@@ -38,23 +52,23 @@ tiktok_account_info <- function(dataframe, summary_entity) {
   }
 
   tryCatch({
-    #Otteniamo il token per la chiamata
+    #Obtain Tiktok token
     auth_research(client_key = Sys.getenv("TIKTOK_CLIENT_KEY"), client_secret = Sys.getenv("TIKTOK_CLIENT_SECRET"))
   }, error = function(e) {
     stop("Authentication with TikTok API failed. Error message: ", e$message)
   })
 
   account_name <- "username"
-  #creazione di una tabella temporanea
+  #create a temporary table
   account_info <- data.frame()
 
+  #create the progress bar
   pb <- utils::txtProgressBar(min = 0, max = nrow(dataframe) , width = 100, style = 3)
 
   for (i in 1:nrow(dataframe)) {
     account_name <- dataframe$account_id[i]
     account_info <- rbind(account_info, get_tiktok_account_info(account_name))
     account_info$account_id[i] <- account_name
-
     utils::setTxtProgressBar(pb, pb$getVal() + 1)
 
   }
@@ -70,11 +84,9 @@ tiktok_account_info <- function(dataframe, summary_entity) {
     summary_entity <- summary_entity %>%
       dplyr::select(account_id, component) %>%
       unique()
-
   }
 
   dataframe <- merge(dataframe, summary_entity, by="account_id")
-
 
   return(dataframe)
 }
