@@ -4,12 +4,12 @@
 \alias{generate_label}
 \title{Function generate_label()}
 \usage{
-generate_label(dataframe, model = "gpt-3.5-turbo", get_cluster = TRUE)
+generate_label(summary_entity, model = "gpt-3.5-turbo", get_cluster = TRUE)
 }
 \arguments{
-\item{dataframe}{dataframe containing information about tiktok accounts}
-
 \item{model}{variable containing the version of ChatGPT to be used}
+
+\item{dataframe}{dataframe containing information about tiktok accounts}
 
 \item{get_cluste}{boolean variable that specifies whether to also analyze clusters}
 }
