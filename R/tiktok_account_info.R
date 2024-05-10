@@ -19,14 +19,17 @@ library(dplyr)
 
 tiktok_account_info <- function(dataframe, summary_entity) {
 
+  #Declare function get_tiktok_account_info
   get_tiktok_account_info <- function(account_name){
 
+    #Add data from api call
     data <- tryCatch({
       tt_user_info_api(account_name,
                                fields = "all",
                                verbose = TRUE)
 
     },error = function(e){
+      #Add NA columns if api call don't find anything
       data.frame(
         following_count = NA,
         is_verified = NA,
@@ -61,9 +64,10 @@ tiktok_account_info <- function(dataframe, summary_entity) {
   #create a temporary table
   account_info <- data.frame()
 
-  #create the progress bar
+  #Initialize progressbar
   pb <- utils::txtProgressBar(min = 0, max = nrow(dataframe) , width = 100, style = 3)
 
+  #Create account_info
   for (i in 1:nrow(dataframe)) {
     account_name <- dataframe$account_id[i]
     account_info <- rbind(account_info, get_tiktok_account_info(account_name))
@@ -72,8 +76,10 @@ tiktok_account_info <- function(dataframe, summary_entity) {
 
   }
 
+  #Join account_info into dataframe
   dataframe <- merge(dataframe, account_info, by="account_id")
 
+  #Add component and cluster columns
   if("cluster" %in% names(summary_entity)){
     summary_entity <- summary_entity %>%
       dplyr::select(account_id, cluster, component) %>%

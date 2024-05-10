@@ -2,16 +2,36 @@
 
 *[RuudGaled](https://github.com/RuudGaled), [Rigor64](https://github.com/Rigor64)*
 
-CoorTok utilizza la liberia `CoorTweet` fornendo funzionalità specifiche per l'analisi delle reti coordinate su TikTok. 
+CooRTok utilizes the `CoorTweet` library, providing specific functionalities for analyzing coordinated networks on TikTok.
 
-# Requisiti
+# Requirements
 
-1. File `.csv` contenente informazioni relative a TikTok. Tramite la libreria [traktok](https://github.com/JBGruber/traktok) è possibile ricavare il database utile per l'analisi dei dati relativi a i dettagli sull'utente che ha condiviso il video, la descrizione e altre dati collegati. 
-2. Una chiave ("*key*") API di ChatGPT (modello gpt-3.5-turbo) per la generazione delle *labels*[^1]
-3. Una chiave ("*key*") API di TikTok per ricavere informazioni ulteriori sugli account[^2]
+1. A `.csv` file containing TikTok-related information. Through the [traktok](https://github.com/JBGruber/traktok) library, you can obtain the necessary database for analyzing data related to user details who shared the video, the description, and other connected data.
+2. An API key from ChatGPT (gpt-3.5-turbo model) for generating the *labels*[^1].
+3. An API key from TikTok to retrieve additional information about accounts[^2].
 
-[^1]: Inserire la chiave nel file .Renviron con dicitura 'OPENAI_API_KEY = '
-[^2]: Inserire la chiave nel file .Renviron con dicitura 'TIKTOK_CLIENT_KEY = ' e  'TIKTOK_CLIENT_SECRET = '
+[^1]: Insert the key into the .Renviron file with the statement 'OPENAI_API_KEY = '
+[^2]: Insert the key into the .Renviron file with the statements 'TIKTOK_CLIENT_KEY = ' and  'TIKTOK_CLIENT_SECRET = '
+
+# Design Choices
+
+- The default version of ChatGTP is the `gpt-3.5-turbo model`, but it can be manually set.
+- For managing coordinated behavior, a time interval related to sharing a post was set to 150 seconds, and a minimum number of participants in sharing was set to 2.
+- You can decide whether to perform cluster analysis as well. To do this, set the `get_cluster` parameter of the `create_entity` function to TRUE.
+- For cluster analysis, the Louvain method algorithm, present in the `cluster_louvain` function of the `igraph` library, is used.
+- For both components and clusters, it was decided to create the `summary_entity` dataframe with the following characteristics:
+
+```r
+    dplyr::reframe(
+          num_account = n(),
+          avg.views = mean(view_count),
+          avg.comments = mean(comment_count),
+          avg.shares = mean(share_count),
+          avg.likes = mean(like_count),
+          most_frequent_region = names(sort(table(region_code), decreasing = TRUE))[1],
+          video_descriptions = list(names(sort(table(video_description), decreasing = TRUE)))
+        )
+```
 
 # Import Library
 
@@ -28,7 +48,7 @@ library(dplyr)
 
 # Quick Start
 
-Importiamo il database:
+Let's import the database:
 
 ```r
 tryCatch({
@@ -40,55 +60,54 @@ tryCatch({
 })
 ```
 
-Per l'inizializzazione del progetto è necessario utilizzare funzioni del `CoorTweet` per la generazione del grafo contenente i comportamenti coordinati. Per fare ciò, eseguire le funzioni sottostanti 
+Through the functions of `CoorTweet` we generate the graph, containing the elements with coordinated behaviors. To do this, execute the functions below:
 
 ```r
 
-#Cambio le colonne per renderle compatibili con l'analisi di CoorTweet
+# Changing columns to make them compatible with CoorTweet analysis
 change_column <- CooRTweet::prep_data(x = database,
-                                  object_id = "video_description", # contenuto del video
-                                  account_id = "author_name",      # autore del video
-                                  content_id = "video_id",         # id del video
-                                  timestamp_share = "create_time") # orario della creazione del video
+                                  object_id = "video_description", # video description
+                                  account_id = "author_name",      # video author
+                                  content_id = "video_id",         # video ID
+                                  timestamp_share = "create_time") # video creation time
 
-#Uniformiamo i caratteri della video description
+# Standardizing characters in the video description
 change_column$object_id <- tolower(change_column$object_id)
 
 
-#Avvio l'analisi dul dataframe modificato, dati i parametri di coordinamento
-#Tutti i video che sono stati condivisi in un certo lasso di tempo da un account ad un altro
+# Running analysis on the modified dataframe, with coordination parameters
 result <- CooRTweet::detect_groups(x = change_column,
-                                   time_window = 150, # intervallo di tempo
-                                   min_participation = 2, # numero minimo di ripetizioni
+                                   time_window = 150, # time interval
+                                   min_participation = 2, # minimum number of repetitions
                                    remove_loops = T)
 
-#genero il grafo relativo ai risultati ottenuti
+# Generating the graph related to the obtained results
 graph <- CooRTweet::generate_coordinated_network(x = result,
-                                                       edge_weight = 0.5, # default 0.5
-                                                       objects = TRUE)
+                                                  edge_weight = 0.5, # default 0.5
+                                                  objects = TRUE)
 ```
 
-Una volta fatto ciò, vengono implementate le seguneti funzioni di CooRTok:
+Then, the following functions of `CooRTok` are implemented:
 
 ```r
-#dataframe che somma tutte le informazzioni che abbiamo riguardo i component di account coordinati e le relative descrizioni dei video
+# Dataframe summarizing all information regarding coordinated account components and their video descriptions
 summary_entity <- create_entity(graph = graph, database = database, get_cluster = TRUE)
 
-#creazione di un dataframe con i soli account che hanno presentato un compontamento coordinato
+# Creating a dataframe with only accounts that exhibited coordinated behavior
 summary_accounts <- account_stats(graph, result, weight_threshold = "none")
 
-#aggiunta delle informazioni sull'account, utilizzando le API di TikTok
+# Adding account information using TikTok APIs
 summary_accounts <- tiktok_account_info(summary_accounts, summary_entity)
 
-#generiamo le label a partire dalla descrizione dei video
+# Generating labels from video descriptions
 tiktok_df <- generate_label(summary_entity, get_cluster = TRUE)
 ```
 
 # Risultati
 
-Alla fine dell'esecuzione del codice, si avranno due dataset:
-- **summary_accounts**: tabella relativa agli account che hanno maggiormente contribuito al comportamento coordinato, ricercando maggiori informazioni tramite l’utilizzo di API di TikTok, attraverso la funzione tiktok_account_info.
-- **tiktok_df**: tramite la funzione generate_label, viene fatta una richiesta a ChatGPT il quale restituisce un'etichetta riassuntiva delle descrizioni dei video che fanno parte di ciascun cluster o component.
+Upon code execution, two datasets are obtained:
+- **summary_accounts**: a table related to accounts that contributed most to coordinated behavior, fetching additional information using TikTok APIs through the `tiktok_account_info` function.
+- **tiktok_df**: through the `generate_label` function, a request is made to ChatGPT, which returns a summarizing label for the descriptions of videos belonging to each cluster or component.
 
 # References
 
