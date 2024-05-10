@@ -92,5 +92,5 @@ Alla fine dell'esecuzione del codice, si avranno due dataset:
 - **tiktok_df**: tramite la funzione generate_label, viene fatta una richiesta a ChatGPT il quale restituisce un'etichetta riassuntiva delle descrizioni dei video che fanno parte di ciascun cluster o component.
 
 # References
-- **[CoorTweet](https://github.com/nicolarighetti/CooRTweet)**
-- **[CoorNet](https://github.com/fabiogiglietto/CooRnet)**
+- **[CooRTweet](https://github.com/nicolarighetti/CooRTweet)**
+- **[CooRNet](https://github.com/fabiogiglietto/CooRnet)**
