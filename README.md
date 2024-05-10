@@ -1,6 +1,6 @@
 # CooRTok
 
-*[RuudGaled](https://github.com/RuudGaled), [Rigor64](https://github.com/Rigor64)*
+*[Edoardo Galantini](https://github.com/RuudGaled), [Matteo Leopizzi](https://github.com/Rigor64)*
 
 CooRTok utilizes the `CoorTweet` library, providing specific functionalities for analyzing coordinated networks on TikTok.
 
