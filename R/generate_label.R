@@ -15,9 +15,9 @@
 #' generate_label(dataframe = dataframe, model = "gpt-3.5-turbo", get_cluster = TRUE)
 
 
-generate_label <- function(dataframe, model = "gpt-3.5-turbo", get_cluster = TRUE) {
+generate_label <- function(summary_entity, model = "gpt-3.5-turbo", get_cluster = TRUE) {
 
-  dataframe <- coordinated_account_stat %>%
+  dataframe <- summary_entity %>%
     dplyr::group_by(component) %>%
     dplyr::reframe(
       num_account = n(),
@@ -31,7 +31,7 @@ generate_label <- function(dataframe, model = "gpt-3.5-turbo", get_cluster = TRU
 
   if(get_cluster == TRUE) {
 
-    dataframe <- coordinated_account_stat %>%
+    dataframe <- summary_entity %>%
       dplyr::group_by(cluster)
   }
 
