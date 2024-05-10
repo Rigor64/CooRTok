@@ -15,8 +15,6 @@
 
 create_entity <- function(graph, database, get_cluster = TRUE) {
 
-  source("./R/detect_cluster.R")
-
   #detect component
   data <- components(graph)$membership
 

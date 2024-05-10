@@ -47,7 +47,6 @@ generate_label <- function(dataframe, model = "gpt-3.5-turbo", get_cluster = TRU
 
     #inizializzo un dataframe temporaneo
     temp_df <- data.frame(cluster_id = integer(), label = character())
-
     cat("\nAuto-labelling clusters with OpenAI gpt-3.5-turbo (https://platform.openai.com/)...\n")
 
     #inizializzo la progressbar
