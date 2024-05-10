@@ -8,13 +8,11 @@
 #' @import utils
 #' @import traktok
 #' @import jsonlite
-#' @import httr
 #' @import dplyr
 #' @examples
 #' tiktok_account_info(summary_accounts, summary_entity)
 
 # Load required libraries
-library(httr)
 library(jsonlite)
 library(traktok)
 library(dplyr)

@@ -18,7 +18,7 @@ create_entity <- function(graph, database, get_cluster = TRUE) {
   source("./R/detect_cluster.R")
 
   #detect component
-  data <- igraph::components(graph)$membership
+  data <- components(graph)$membership
 
   #add component to the graph
   igraph::V(graph)$component <- data
