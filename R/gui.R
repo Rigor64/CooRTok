@@ -69,15 +69,18 @@ ui <- fluidPage(
 
 # Define server logic to read selected file ----
 server <- function(input, output) {
+    # List to contain variables over the observer
     reactiveValues <- reactiveVal(list(NULL))
+    # GUI options
     options(shiny.maxRequestSize = 15000 * 1024^2)
-    # finaldf <- reactiveValues(data = NULL)
+    # Valueble to contain the final dataframe
+    finaldf <- reactiveValues(data = NULL)
 
     validateInput <- function(inputText) {
-    if (!stringr::str_detect(inputText, "^[0-9]+[.]?[0-9]*$")) {
-      return("The value must be a positive number!")
+      if (!stringr::str_detect(inputText, "^[0-9]+[.]?[0-9]*$")) {
+        return("The value must be a positive number!")
+      }
     }
-  }
 
   observeEvent(input$timewindow, {
     inputText <- input$timewindow
@@ -117,7 +120,6 @@ server <- function(input, output) {
 
     observeEvent(input$file1, {
       withProgress(message = 'calculating...',value = 0,{
-        #urls <- read.csv(input$file1$datapath)
 
         tryCatch({
           database <- readr::read_csv(input$file1$datapath,
@@ -126,8 +128,6 @@ server <- function(input, output) {
           }, error = function(e) {
             stop("Failed to read TikTok coordinated accounts ID CSV. Error: ", e$message)
           })
-
-        print("1")
 
         incProgress(0.3,detail = paste0("I'm making API requests, please wait as long as necessary"))
 
@@ -141,20 +141,13 @@ server <- function(input, output) {
         # Standardizing characters in the video description
         change_column$object_id <- tolower(change_column$object_id)
 
-
-        print(typeof(input$timewindow))
-# if(input$timewindow == " ") 150 else as.integer(input$timewindow)
-
         # Running analysis on the modified dataframe, with coordination parameters
         result <- CooRTweet::detect_groups(x = change_column,
          time_window = input$timewindow, # time interval
          min_participation = input$minparticipation, # minimum number of repetitions
          remove_loops = T)
 
-        #incProgress(0.5,detail = paste0("creating graph..."))
-
-        #print("3")
-        #if(input$percentileedgeweight == " ") 0.5 else as.double(input$percentileedgeweight), # default 0.5
+        incProgress(0.5,detail = paste0("creating graph..."))
 
         # Generating the graph related to the obtained results
         graph <- CooRTweet::generate_coordinated_network(x = result,
@@ -164,12 +157,6 @@ server <- function(input, output) {
         reactiveValues(list(graph = graph, database = database, result = result))
 
         #print("4")
-        # output_coornet <<- get_coord_shares(ct_shares.df = ct_shares.urls,
-                                    # coordination_interval = if(input$timewindow == "") 150 else as.integer(input$timewindow),
-                                    # parallel = FALSE,
-                                    # percentile_edge_weight = if(input$percentileedgeweight == "") 0.995 else as.double(input$percentileedgeweight),
-                                    # keep_ourl_only = TRUE,
-                                    # clean_urls = TRUE)
 
         incProgress(0.2,detail = paste0("I finished"))
 
@@ -182,18 +169,13 @@ server <- function(input, output) {
     # L'utente decide se vuole calcolare anche i cluster
     observeEvent(input$create_df, {
       p <- reactiveValues()
-      print("10")
-      print(p$graph)
-      print("")
-      print(p$database)
+
       # Dataframe summarizing all information regarding coordinated account components and their video descriptions
       summary_entity <- create_entity(graph = p$graph, database = p$database, result = p$result, get_cluster = TRUE)
-      print("11")
-      print(summary_entity)
 
       # Creating a dataframe with only accounts that exhibited coordinated behavior
       summary_accounts <- CooRTweet::account_stats( coord_graph = p$graph, result = p$result, weight_threshold = "none")
-      print("12")
+
       # Check TikTok API
       if (is.na(Sys.getenv("TIKTOK_CLIENT_KEY")) | is.na(Sys.getenv("TIKTOK_CLIENT_SECRET"))) {
         stop("Environment variables for TikTok API not set. Please set TIKTOK_CLIENT_KEY and TIKTOK_CLIENT_SECRET.")
@@ -204,7 +186,6 @@ server <- function(input, output) {
 
       # Check OpenAI API
       if (is.na(Sys.getenv("OPENAI_API_KEY"))) {
-        # stop("Environment variables for OpenAI API not set. Please set OPENAI_API_KEY")
         # Render the text input as text output
         output$textOutput <- renderText({
           input$textInput <- "Environment variables for OpenAI API not set. Please set OPENAI_API_KEY."
@@ -213,6 +194,8 @@ server <- function(input, output) {
       } else {
         # Generating labels from video descriptions
       tiktok_df <- generate_label(summary_entity, get_cluster = TRUE)
+
+      finaldf(tiktok_df)
       }
 
     })

@@ -92,7 +92,7 @@ Then, the following functions of `CooRTok` are implemented:
 
 ```r
 # Dataframe summarizing all information regarding coordinated account components and their video descriptions
-summary_entity <- create_entity(graph = graph, database = database, get_cluster = TRUE)
+summary_entity <- create_entity(graph = graph, database = database, result = result, get_cluster = TRUE)
 
 # Creating a dataframe with only accounts that exhibited coordinated behavior
 summary_accounts <- account_stats(graph, result, weight_threshold = "none")
