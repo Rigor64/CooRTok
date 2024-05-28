@@ -1,3 +1,9 @@
+#'  Function gui()
+#'
+#' Create the necessary gui to use the library
+#'
+#' @name gui
+#' @export
 #' @import shiny
 #' @import shinyjs
 #' @import igraph
@@ -5,7 +11,9 @@
 #' @import readr
 #' @importFrom utils read.csv
 #' @import CooRTweet
-#' @export
+#' @examples
+#' gui()
+
 gui <- function(){
 
 ui <- fluidPage(
@@ -61,7 +69,7 @@ ui <- fluidPage(
 
 # Define server logic to read selected file ----
 server <- function(input, output) {
-    reactiveValues <- reactiveVal(list())
+    reactiveValues <- reactiveVal(list(NULL))
     options(shiny.maxRequestSize = 15000 * 1024^2)
     # finaldf <- reactiveValues(data = NULL)
 
