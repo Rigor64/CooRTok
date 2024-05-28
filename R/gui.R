@@ -192,7 +192,7 @@ server <- function(input, output) {
       print(summary_entity)
 
       # Creating a dataframe with only accounts that exhibited coordinated behavior
-      summary_accounts <- CooRTweet::account_stats(graph = p$graph, result = p$result, weight_threshold = "none")
+      summary_accounts <- CooRTweet::account_stats( coord_graph = p$graph, result = p$result, weight_threshold = "none")
       print("12")
       # Check TikTok API
       if (is.na(Sys.getenv("TIKTOK_CLIENT_KEY")) | is.na(Sys.getenv("TIKTOK_CLIENT_SECRET"))) {
