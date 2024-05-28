@@ -41,9 +41,6 @@ ui <- fluidPage(
       # Horizontal line ----
       tags$hr(),
 
-      #Errors
-      textInput("errorpanel",""),
-
       # Input: Checkbox if file has header ----
 
       checkboxInput(
@@ -52,8 +49,11 @@ ui <- fluidPage(
       ),
 
       actionButton("create_df", "Create Dataframe",disabled=TRUE),
-      downloadButton("downloadData", label = "Download graph",disabled=TRUE),
+      downloadButton("downloadData", label = "Download dataframe",disabled=TRUE),
       # Horizontal line ----
+
+      #Errors
+      textInput("errorpanel",""),
     ),
     # Main panel for displaying outputs ----
     mainPanel(
@@ -70,6 +70,8 @@ ui <- fluidPage(
 server <- function(input, output) {
     # List to contain variables over the observer
     reactiveValues <- reactiveVal(list(NULL))
+
+    #finalValue <- reactiveValues(NULL)
     # GUI options
     options(shiny.maxRequestSize = 15000 * 1024^2)
     # Valueble to contain the final dataframe
@@ -165,48 +167,68 @@ server <- function(input, output) {
 
     # L'utente decide se vuole calcolare anche i cluster
     observeEvent(input$create_df, {
+
       p <- reactiveValues()
+      withProgress(message = 'calculating...',value = 0,{
 
-      # Dataframe summarizing all information regarding coordinated account components and their video descriptions
-      summary_entity <- create_entity(graph = p$graph, database = p$database, result = p$result, get_cluster = input$get_cluster)
+        # Dataframe summarizing all information regarding coordinated account components and their video descriptions
+        incProgress(0.25,detail = paste0("I'm creating summary entity ..."))
+        summary_entity <- create_entity(graph = p$graph, database = p$database, result = p$result, get_cluster = input$get_cluster)
 
-      print(summary_entity)
+        # Creating a dataframe with only accounts that exhibited coordinated behavior
+        incProgress(0.25,detail = paste0("I'm creating summary account ..."))
+        summary_accounts <- CooRTweet::account_stats(coord_graph = p$graph, result = p$result, weight_threshold = "none")
 
-      print(input$get_cluster)
-
-      # Creating a dataframe with only accounts that exhibited coordinated behavior
-      summary_accounts <- CooRTweet::account_stats(coord_graph = p$graph, result = p$result, weight_threshold = "none")
-
-      # Check TikTok API
-      if (is.na(Sys.getenv("TIKTOK_CLIENT_KEY")) | is.na(Sys.getenv("TIKTOK_CLIENT_SECRET"))) {
-        output$textOutput <- renderText({
-          input$textInput <- "Environment variables for TikTok API not set. Please set TIKTOK_CLIENT_KEY and TIKTOK_CLIENT_SECRET."
-        })
-      } else {
-         # Adding account information using TikTok APIs
-         summary_accounts <- tiktok_account_info(summary_accounts, summary_entity)
-      }
-
-      # Check OpenAI API
-      if (is.na(Sys.getenv("OPENAI_API_KEY"))) {
-        # Render the text input as text output
-        output$textOutput <- renderText({
-          input$textInput <- "Environment variables for OpenAI API not set. Please set OPENAI_API_KEY."
+        # Check TikTok API
+        tryCatch({
+          #Obtain Tiktok token
+          auth_research(client_key = Sys.getenv("TIKTOK_CLIENT_KEY"), client_secret = Sys.getenv("TIKTOK_CLIENT_SECRET"))
+          # Adding account information using TikTok APIs
+          incProgress(0.25,detail = paste0("Calling TikTok API"))
+          summary_accounts <- tiktok_account_info(summary_accounts, summary_entity)
+        }, error = function(e) {
+          output$textOutput <- renderText({
+            input$textInput <- "Environment variables for TikTok API not set. Please set TIKTOK_CLIENT_KEY and TIKTOK_CLIENT_SECRET."
+          })
         })
 
-      } else {
-        # Generating labels from video descriptions
-      tiktok_df <- generate_label(summary_entity = summary_entity, get_cluster = input$get_cluster)
+        # Check OpenAI API
+        if (is.na(Sys.getenv("OPENAI_API_KEY"))) {
+          # Render the text input as text output
+          output$textOutput <- renderText({
+            input$textInput <- "Environment variables for OpenAI API not set. Please set OPENAI_API_KEY."
+          })
 
-      #reactiveVal(tiktok_df)
-      }
+        } else {
+          # Generating labels from video descriptions
+          incProgress(0.25,detail = paste0("Calling OpenAi API"))
+          tiktok_df <- generate_label(summary_entity = summary_entity, get_cluster = input$get_cluster)
+
+          reactiveValues(list(tiktok_df = tiktok_df))
+
+          #reactiveValues(list(tiktok_df = tiktok_df))
+          #reactiveVal(tiktok_df)
+        }
+      })
+
 
     })
 
     output$contents <- renderTable({
-      #return(finaldf)
+      #return(tiktok_df)
+      })
+
+
+    output$downloadData <- downloadHandler(
+      p2 <- reactiveValues(),
+      filename = function() {
+        paste("dataframe-", Sys.Date(), ".csv", sep="")
+      },
+      content = function(file) {
+        print(p2$tiktok_df)
+        write.csv(p2$tiktok_df, file, row.names = TRUE)
       }
-  )
+    )
 
 }
 
