@@ -30,7 +30,6 @@ ui <- fluidPage(
       numericInput("timewindow","", value = 150),
       numericInput("percentileedgeweight","", value = 0.5),
       numericInput("minparticipation","", value = 2),
-      textInput("errorpanel",""),
 
       # Input: Select a file ----
       fileInput("file1", "Choose CSV File with your URLs",
@@ -41,6 +40,9 @@ ui <- fluidPage(
 
       # Horizontal line ----
       tags$hr(),
+
+      #Errors
+      textInput("errorpanel",""),
 
       # Input: Checkbox if file has header ----
 
@@ -55,9 +57,6 @@ ui <- fluidPage(
     ),
     # Main panel for displaying outputs ----
     mainPanel(
-
-      # Display the text output
-      textOutput("textOutput"),
 
       # Output: Data file ----
       tableOutput("contents")
@@ -74,7 +73,7 @@ server <- function(input, output) {
     # GUI options
     options(shiny.maxRequestSize = 15000 * 1024^2)
     # Valueble to contain the final dataframe
-    finaldf <- reactiveValues(data = NULL)
+    #finaldf <- reactiveValues(NULL)
 
     validateInput <- function(inputText) {
       if (!stringr::str_detect(inputText, "^[0-9]+[.]?[0-9]*$")) {
@@ -156,8 +155,6 @@ server <- function(input, output) {
 
         reactiveValues(list(graph = graph, database = database, result = result))
 
-        #print("4")
-
         incProgress(0.2,detail = paste0("I finished"))
 
 
@@ -174,11 +171,13 @@ server <- function(input, output) {
       summary_entity <- create_entity(graph = p$graph, database = p$database, result = p$result, get_cluster = TRUE)
 
       # Creating a dataframe with only accounts that exhibited coordinated behavior
-      summary_accounts <- CooRTweet::account_stats( coord_graph = p$graph, result = p$result, weight_threshold = "none")
+      summary_accounts <- CooRTweet::account_stats(coord_graph = p$graph, result = p$result, weight_threshold = "none")
 
       # Check TikTok API
       if (is.na(Sys.getenv("TIKTOK_CLIENT_KEY")) | is.na(Sys.getenv("TIKTOK_CLIENT_SECRET"))) {
-        stop("Environment variables for TikTok API not set. Please set TIKTOK_CLIENT_KEY and TIKTOK_CLIENT_SECRET.")
+        output$textOutput <- renderText({
+          input$textInput <- "Environment variables for TikTok API not set. Please set TIKTOK_CLIENT_KEY and TIKTOK_CLIENT_SECRET."
+        })
       } else {
          # Adding account information using TikTok APIs
          summary_accounts <- tiktok_account_info(summary_accounts, summary_entity)
@@ -193,15 +192,15 @@ server <- function(input, output) {
 
       } else {
         # Generating labels from video descriptions
-      tiktok_df <- generate_label(summary_entity, get_cluster = TRUE)
+      tiktok_df <- generate_label(summary_entity = summary_entity, get_cluster = TRUE)
 
-      finaldf(tiktok_df)
+      #reactiveVal(tiktok_df)
       }
 
     })
 
     output$contents <- renderTable({
-      return(finaldf$data)
+      #return(finaldf)
       }
   )
 

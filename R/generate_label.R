@@ -17,24 +17,34 @@
 
 generate_label <- function(summary_entity, model = "gpt-3.5-turbo", get_cluster = TRUE) {
 
-  #Create new dataframe and group by component
-  dataframe <- summary_entity %>%
-    dplyr::group_by(component) %>%
-    dplyr::reframe(
-      num_account = n(),
-      avg.views = mean(view_count),
-      avg.comments = mean(comment_count),
-      avg.shares = mean(share_count),
-      avg.likes = mean(like_count),
-      most_frequent_region = names(sort(table(region_code), decreasing = TRUE))[1],
-      video_descriptions = list(names(sort(table(video_description), decreasing = TRUE)))
-    )
 
-  if(get_cluster == TRUE) {
-
-    #add cluster column to the database
+  if(get_cluster == TRUE){
+    #Create new dataframe with component and cluster columns
     dataframe <- summary_entity %>%
-      dplyr::group_by(cluster)
+      dplyr::group_by(cluster) %>%
+      dplyr::reframe(
+        component = component,
+        num_account = n(),
+        avg.views = mean(view_count),
+        avg.comments = mean(comment_count),
+        avg.shares = mean(share_count),
+        avg.likes = mean(like_count),
+        most_frequent_region = names(sort(table(region_code), decreasing = TRUE))[1],
+        video_descriptions = list(names(sort(table(video_description), decreasing = TRUE)))
+      )
+  }else{
+    #Create new dataframe and group by component
+    dataframe <- summary_entity %>%
+      dplyr::group_by(component) %>%
+      dplyr::reframe(
+        num_account = n(),
+        avg.views = mean(view_count),
+        avg.comments = mean(comment_count),
+        avg.shares = mean(share_count),
+        avg.likes = mean(like_count),
+        most_frequent_region = names(sort(table(region_code), decreasing = TRUE))[1],
+        video_descriptions = list(names(sort(table(video_description), decreasing = TRUE)))
+      )
   }
 
   #check the number of the components
