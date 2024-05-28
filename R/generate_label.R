@@ -6,7 +6,7 @@
 #' @name generate_label
 #' @param dataframe dataframe containing information about tiktok accounts
 #' @param model variable containing the version of ChatGPT to be used
-#' @param get_cluste boolean variable that specifies whether to also analyze clusters
+#' @param get_cluster boolean variable that specifies whether to also analyze clusters
 #' @export
 #' @import dplyr
 #' @import utils

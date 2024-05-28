@@ -4,6 +4,7 @@
 #' with an indication about the clusters or components on each network
 #' @name create_entity
 #' @param graph the coordinated behaviours graph
+#' @param result output of the detected group
 #' @param database the database
 #' @param get_cluster boolean parameter for chosing if the cluster would be detected
 #' @export
@@ -13,7 +14,7 @@
 #' @examples
 #' create_entity(graph = graph, database = database, get_cluster = TRUE)
 
-create_entity <- function(graph, database, get_cluster = TRUE) {
+create_entity <- function(graph, database, result, get_cluster = TRUE) {
 
   #detect component
   data <- components(graph)$membership

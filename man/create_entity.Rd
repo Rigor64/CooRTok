@@ -4,12 +4,14 @@
 \alias{create_entity}
 \title{Create entity function}
 \usage{
-create_entity(graph, database, get_cluster = TRUE)
+create_entity(graph, database, result, get_cluster = TRUE)
 }
 \arguments{
 \item{graph}{the coordinated behaviours graph}
 
 \item{database}{the database}
+
+\item{result}{output of the detected group}
 
 \item{get_cluster}{boolean parameter for chosing if the cluster would be detected}
 }

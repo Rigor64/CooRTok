@@ -9,9 +9,9 @@ generate_label(summary_entity, model = "gpt-3.5-turbo", get_cluster = TRUE)
 \arguments{
 \item{model}{variable containing the version of ChatGPT to be used}
 
-\item{dataframe}{dataframe containing information about tiktok accounts}
+\item{get_cluster}{boolean variable that specifies whether to also analyze clusters}
 
-\item{get_cluste}{boolean variable that specifies whether to also analyze clusters}
+\item{dataframe}{dataframe containing information about tiktok accounts}
 }
 \description{
 This function allows you to make a request to ChatGPT which, processing the data taken as input,
