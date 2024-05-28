@@ -168,7 +168,11 @@ server <- function(input, output) {
       p <- reactiveValues()
 
       # Dataframe summarizing all information regarding coordinated account components and their video descriptions
-      summary_entity <- create_entity(graph = p$graph, database = p$database, result = p$result, get_cluster = TRUE)
+      summary_entity <- create_entity(graph = p$graph, database = p$database, result = p$result, get_cluster = input$get_cluster)
+
+      print(summary_entity)
+
+      print(input$get_cluster)
 
       # Creating a dataframe with only accounts that exhibited coordinated behavior
       summary_accounts <- CooRTweet::account_stats(coord_graph = p$graph, result = p$result, weight_threshold = "none")
@@ -192,7 +196,7 @@ server <- function(input, output) {
 
       } else {
         # Generating labels from video descriptions
-      tiktok_df <- generate_label(summary_entity = summary_entity, get_cluster = TRUE)
+      tiktok_df <- generate_label(summary_entity = summary_entity, get_cluster = input$get_cluster)
 
       #reactiveVal(tiktok_df)
       }
