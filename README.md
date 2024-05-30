@@ -17,7 +17,7 @@ CooRTok utilizes the `CoorTweet` library, providing specific functionalities for
 
 - The default version of ChatGTP is the `gpt-3.5-turbo model`, but it can be manually set.
 - For managing coordinated behavior, a time interval related to sharing a post was set to 150 seconds, and a minimum number of participants in sharing was set to 2.
-- You can decide whether to perform cluster analysis as well. To do this, set the `get_cluster` parameter of the `create_entity` function to TRUE.
+- You can decide whether to perform cluster analysis as well. To do this, set the `get_cluster` parameter of the `create_entity` function to TRUE (the same thing is allowed for the `generate_label` function).
 - For cluster analysis, the Louvain method algorithm, present in the `cluster_louvain` function of the `igraph` library, is used.
 - For both components and clusters, it was decided to create the `summary_entity` dataframe with the following characteristics:
 
