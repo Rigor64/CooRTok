@@ -76,6 +76,8 @@ tiktok_account_info <- function(dataframe, summary_entity) {
 
   }
 
+  cat("\n")
+
   #Join account_info into dataframe
   dataframe <- merge(dataframe, account_info, by="account_id")
 

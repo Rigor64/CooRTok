@@ -96,8 +96,11 @@ generate_label <- function(summary_entity, model = "gpt-3.5-turbo", get_cluster 
         temp_df <- rbind(temp_df, data.frame(cluster_id = j, label = "System error"))
       }
       utils::setTxtProgressBar(pb, pb$getVal() + 1)
+
       Sys.sleep(0.5)
     }
+
+    cat("\n")
 
     #Add all descriptions to dataframe
     dataframe <- merge(dataframe, temp_df, by.x = "component", by.y = "cluster_id")
