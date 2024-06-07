@@ -96,7 +96,7 @@ Then, the following functions of `CooRTok` are implemented:
 summary_entity <- create_entity(graph = graph, database = database, result = result, get_cluster = TRUE)
 
 # Creating a dataframe with only accounts that exhibited coordinated behavior
-summary_accounts <- account_stats(graph = graph, result = result, weight_threshold = "none")
+summary_accounts <- account_stats(coord_graph = graph, result = result, weight_threshold = "none")
 
 # Adding account information using TikTok APIs
 summary_accounts <- tiktok_account_info(summary_accounts, summary_entity)
