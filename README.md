@@ -36,10 +36,11 @@ CooRTok utilizes the `CoorTweet` library, providing specific functionalities for
 # Import Library
 
 ```r
-devtools::install_github("Rigor64/CooRTok")
 devtools::install_github("nicolarighetti/CooRTweet")
-library(CooRTok)
+devtools::install_github("Rigor64/CooRTok")
+
 library(CooRTweet)
+library(CooRTok)
 library(igraph)
 library(traktok)
 library(readr)
