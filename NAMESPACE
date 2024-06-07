@@ -2,6 +2,7 @@
 
 export(create_entity)
 export(generate_label)
+export(gui)
 export(tiktok_account_info)
 import(CooRTweet)
 import(devtools)
@@ -10,6 +11,8 @@ import(igraph)
 import(jsonlite)
 import(openai)
 import(readr)
+import(shiny)
+import(shinyjs)
 import(traktok)
 import(utils)
-
+importFrom(utils,read.csv)
