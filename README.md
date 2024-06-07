@@ -17,7 +17,7 @@ CooRTok utilizes the `CoorTweet` library, providing specific functionalities for
 
 - The default version of ChatGTP is the `gpt-3.5-turbo model`, but it can be manually set.
 - For managing coordinated behavior, a time interval related to sharing a post was set to 150 seconds, and a minimum number of participants in sharing was set to 2.
-- You can decide whether to perform cluster analysis as well. To do this, set the `get_cluster` parameter of the `create_entity` function to TRUE.
+- You can decide whether to perform cluster analysis as well. To do this, set the `get_cluster` parameter of the `create_entity` function to TRUE (the same thing is allowed for the `generate_label` function).
 - For cluster analysis, the Louvain method algorithm, present in the `cluster_louvain` function of the `igraph` library, is used.
 - For both components and clusters, it was decided to create the `summary_entity` dataframe with the following characteristics:
 
@@ -36,10 +36,11 @@ CooRTok utilizes the `CoorTweet` library, providing specific functionalities for
 # Import Library
 
 ```r
-devtools::install_github("Rigor64/CooRTok")
 devtools::install_github("nicolarighetti/CooRTweet")
-library(CooRTok)
+devtools::install_github("Rigor64/CooRTok")
+
 library(CooRTweet)
+library(CooRTok)
 library(igraph)
 library(traktok)
 library(readr)
@@ -95,7 +96,7 @@ Then, the following functions of `CooRTok` are implemented:
 summary_entity <- create_entity(graph = graph, database = database, result = result, get_cluster = TRUE)
 
 # Creating a dataframe with only accounts that exhibited coordinated behavior
-summary_accounts <- account_stats(graph, result, weight_threshold = "none")
+summary_accounts <- account_stats(coord_graph = graph, result = result, weight_threshold = "none")
 
 # Adding account information using TikTok APIs
 summary_accounts <- tiktok_account_info(summary_accounts, summary_entity)
